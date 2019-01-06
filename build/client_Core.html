@@ -1,0 +1,186 @@
+<script>
+
+	/**
+	 * functions for auth form (backform)
+	 * and for main form init 
+	 */
+
+	function handleLogin(){
+		applyJudgeName();
+		disableSubmitElem("Загрузка...")
+		google.script.run.withFailureHandler(handleError).withSuccessHandler(OnJudgeResultsFetched).fetchJudgeResults(getIDValue());
+		changeView("backform","mainlayer"); // disabled now for comfortable debug
+	}
+
+	function applyJudgeName(){
+		//puts name in disabled field 
+		getJudgeElem().setAttribute("value", document.getElementById('jid').value);
+		initForm();
+		formToken();
+	}
+
+	function initForm(){
+		//calls model data getters on server
+		//handlers in module_client
+		google.script.run.withFailureHandler(handleError).withSuccessHandler(
+			OnTeamNamesFetched).getTeamnames(getIDValue());
+		google.script.run.withFailureHandler(handleError).withSuccessHandler(
+			OnFormParametersFetched).getParams(getIDValue());
+		initElement();
+		getTeamElem().focus();
+	}
+
+	function OnTeamNamesFetched(data){
+		sessionStorage.setItem("teamnames", data);
+	}
+
+	function OnJudgeResultsFetched(data){
+		var judge = getJudgeValue();
+		var counter = 0;
+		for(i in data){
+			try{
+				var curForm  = JSON.parse(data[i][0]);
+				if(curForm.judge == judge){
+					$('#logslist').prepend("<li id='log" + counter + "'> Загрузка... " + "</li>");
+					pushServerResponse(counter,curForm.team,curForm.problem,curForm.result,curForm.time,curForm.serverResponse,curForm.token);
+					counter++;
+				}
+			}catch(err){
+				continue;
+			}
+		}
+		enableSubmitElem();
+	}
+
+	function changeView(first	,second){
+		//change forms disabled
+		console.log(first + " " + second);
+		document.getElementById('' + first).setAttribute("hidden","true");
+  		document.getElementById('' + second).removeAttribute("hidden");
+	}
+
+
+
+	/**
+	 * functions for communication with server
+	 */
+
+	function sendForm(){
+		// getSubmitButtonElem().setAttribute("disabled","disabled");
+		var formData = getFormData();
+		formData.formLink = $("li").length;
+		$('#logslist').prepend("<li id='log" + formData.formLink + "'> Отправлено " + "</li>");
+		disableSubmitElem("Отправлено");
+  		google.script.run.withFailureHandler(handleError).withSuccessHandler(handleServerResponse).handleClientForm(formData);
+	}
+
+	function getFormData(){
+		//get all data from module
+		// all getters should be in module file
+		var FormResponse = {
+    		team: Math.trunc(getTeamValue()/10),
+    		problem: getProblemValue(),
+    		result: getResultValue(),
+    		judge: getJudgeValue(),
+    		version: getVersionValue(),
+    		uptodate: true,
+    		formLink: 0,
+    		comment: getCommentValue(),
+    		tableid: getIDValue(), //заглушка с константным id
+    		serverResponse: "Записано",
+    		isExtrasNeeded: false,
+    		token: document.getElementById("tokenval").value,
+    		time : ""
+  		};
+  		return FormResponse;
+	}
+
+	function handleServerResponse(JSONresp){
+		//alert(JSONresp);
+		var resp = JSON.parse(JSONresp);
+  		if(resp.uptodate == false){ 
+    		initForm();
+  		}
+  		if(resp.isExtrasNeeded == true){
+  			changeView("mainlayer", "CustomAlert");
+  		}
+  		resetInput();
+  		handleError("Записано");
+		pushServerResponse(resp.formLink,resp.team,resp.problem,resp.result,resp.time,resp.serverResponse,resp.token);
+	}
+
+	function resetInput(){
+		getProblemElem().value = "";
+		getCommentElem().value = "";
+		document.getElementById("good_radio").checked = false;
+		document.getElementById("bad_radio").checked = false;
+	}
+
+	function pushServerResponse(link,a,b,c,d,e,token){
+	  //push data to special structure
+      if(e == "Записано"){
+        var delstr = "<a id='del" + link + "'> Удалить </a>";
+      }else{
+        var delstr = "";
+      }
+	  var teamnames = JSON.parse(sessionStorage.getItem("teamnames"));
+	  document.getElementById("log" + link).innerHTML = teamnames[a-1] + 
+	  	" (" +  a + ") " + "; " + b + "; " + c +  "; " + d + "; " + e + "; " + 
+	  	delstr;
+	  document.getElementById("del" + link).onclick =  function () { var res = confirm('Подтведите удаление'); handleDelete(res, token,link); };
+
+	}
+
+	function handleDelete(res, token, link){
+		if(res){
+			google.script.run.withFailureHandler(handleError).withSuccessHandler(deleteSuccess).deleteForm(token,link, getIDValue());
+		}
+	}
+
+	function deleteSuccess(link){
+		document.getElementById("del" + link).innerText = "УДАЛЕНО";
+		document.getElementById("del" + link).onclick = null;
+	}
+
+
+	/**
+	 * key functions
+	 */
+
+	function handleError(error){
+		//write to special field
+		if(error == "Записано"){
+			error = "Обработано";
+		}
+		document.getElementById("formMessage").innerText = error;
+		formToken();
+		enableSubmitElem();
+	}
+
+	function initPage(){
+		google.script.run.withSuccessHandler(setHeader).getHeader();
+	}
+
+	function setHeader(h){
+		document.getElementById("header").innerText = h;
+	}
+
+	function formToken(){
+		var d = new Date();
+		$("#tokenval").val(getJudgeValue() + d.toLocaleTimeString());
+	}
+
+	function sleep(ms) {
+  		return new Promise(resolve => setTimeout(resolve, ms));
+	}
+
+	function disableSubmitElem(string){
+		getSubmitButtonElem().setAttribute("disabled","disabled");
+		getSubmitButtonElem().value = string;
+	}
+
+	function enableSubmitElem(){
+		getSubmitButtonElem().removeAttribute("disabled");
+		getSubmitButtonElem().value = "Добавить";	
+	}
+</script>

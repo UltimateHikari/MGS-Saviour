@@ -1,0 +1,78 @@
+<script>
+	/**
+	 *handlers
+	 */
+	function OnFormParametersFetched(data){
+	  var parameters = JSON.parse(data);
+	  getTeamElem().setAttribute('max', (parameters.team+1)*10);
+	  getProblemElem().setAttribute('max', parameters.problem);
+	  getTeamElem().setAttribute('placeholder', "от 0000 до " + (parameters.team+1)*10);
+	  getProblemElem().setAttribute('placeholder', "от 1 до " + parameters.problem);
+	  getVersionElem().setAttribute("value", parameters.team);
+	}
+
+
+
+	/**
+	 * object getters
+	 */
+	function getTeamElem() {
+		return document.getElementById("team");
+	}
+
+	function getProblemElem() {
+		return document.getElementById("problem");
+	}
+
+	function getJudgeElem() {
+		return document.getElementById("judgename");
+	}
+
+	function getSubmitButtonElem() { 
+		return document.getElementById("sbmbt");
+	} 
+
+	function getVersionElem() { 
+		return document.getElementById("version");
+	}
+
+	function getIDElem() {
+		return document.getElementById("spreadsheetID");
+	}
+
+	function getCommentElem() {
+		return document.getElementById("comment");
+	}
+
+
+	function getResultValue() {
+		// very careful with result getting
+		return document.getElementById('good_radio').checked;
+	}
+	/**
+	 *value getters
+	 */
+	function getTeamValue() {
+		return parseInt(getTeamElem().value);
+	}
+
+	function getProblemValue() {
+		return parseInt(getProblemElem().value);
+	}
+
+	function getJudgeValue() {
+		return getJudgeElem().value;
+	}
+
+	function getVersionValue(){
+		return parseInt(getVersionElem().value);
+	}
+
+	function getIDValue() {
+		return getIDElem().value;
+	}
+
+	function getCommentValue() {
+		return getCommentElem().value;
+	}
+</script>

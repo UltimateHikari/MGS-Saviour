@@ -1,0 +1,83 @@
+<a href="https://goo.gl/6MXBC5" target="_blank">Лист участника</a>
+<a href="https://docs.google.com/spreadsheets/d/e/2PACX-1vQOY3OWZmA065hdCapAXKaCGa_s5PZZGIz_6kNTOLE4oB8zZzXktpVpHb7LJzrgrKEXjDNS9B2CG75K/pubhtml?gid=940596466&single=true" target="_blank">Протокол</a>
+<form сlass="mui-form" id="mainform" onsubmit="sendForm(); return false;" autocomplete="off">
+  <input hidden="true" id="spreadsheetID" value="1i60nTGNebrNBu83lodRgNGVtXRsyJHCcoQpC0h1Isug">
+
+  <div class="mui-row">
+   	<div class="mui-col-md-4">
+      <div class="mui-textfield">
+        <input id="judgename" value="none" disabled="disabled">    
+        <label>Судья</label>
+      </div>
+    </div>
+  </div>
+
+  <div class="mui-row">
+    <div class="mui-col-md-4">
+      <div class="mui-textfield">
+        <input id="team" type="number" min="1" max="1000" autofocus required>
+        <label>Номер участника</label>
+      </div>
+    </div>
+    <div class="mui-col-md-8">
+      <label id="current_team_name"></label>
+    </div> 
+  </div>
+
+  <div class="mui-row">
+    <div class="mui-col-md-4">
+      <div class="mui-textfield">
+        <input id="problem" type="number" min="1" max="1000" required>
+        <label>Номер задачи</label>
+      </div>
+    </div>
+    <div class="mui-col-md-8">
+      <label id="current_problem_results"></label>
+    </div> 
+  </div>
+
+  <div class="mui-row" hidden id="comment_div">
+    <div class="mui-col-md-4">
+      <div class="mui-textfield">
+        <input id="comment" type="text">
+        <label>Комментарий</label>
+      </div>
+     </div>
+  </div>
+
+  <div class="mui-row">
+    <div class="mui-radio">
+      <div class="mui-col-md-2">
+        <label>
+          <input name="result_radio" type="radio" id="good_radio" required>  Верно
+        </label>
+      </div>
+
+      <div class="mui-col-md-2">
+        <label>
+          <input name="result_radio" type="radio" id="bad_radio" required>  Неверно
+        </label>
+      </div>
+    </div>
+ 
+   <div class="mui-col-md-8">
+      <label id="formMessage"></label> 
+   </div>
+  </div>
+
+  <div class="mui-row">    
+    <div class="mui-col-md-2">
+      <div align="center">
+        <input type="submit" id="sbmbt" value="Добавить" class="mui-btn mui-btn--primary">
+      </div>
+      <br>
+    </div>
+    <div class="mui-col-md-2">
+      <div align="center">
+        <input type="button" id="comment_button" value="Показать коммент." class="mui-btn mui-btn--primary" onclick="switchCommentFieldVisibility()">
+      </div>
+      <br>
+    </div>
+  </div>
+
+</form>
